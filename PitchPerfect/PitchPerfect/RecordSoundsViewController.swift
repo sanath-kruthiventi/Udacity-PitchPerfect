@@ -12,7 +12,6 @@ import AVFoundation
 class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
 
     
-    
     @IBOutlet weak var lblOutletStatus: UILabel!
     @IBOutlet weak var btnOutletStopRec: UIButton!
     @IBOutlet weak var btnOutletRec: UIButton!
@@ -21,7 +20,7 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
     
 
     @IBAction func btnRecord(sender: AnyObject) {
-        updateUI("Recording in progress", btnRecordStatus: false, btnStopRecStatus: true)
+        updateUIisRecording(true)
         let dirPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory,.UserDomainMask, true)[0] as String
         let recordingName = "recordedVoice.wav"
         let pathArray = [dirPath, recordingName]
@@ -38,7 +37,7 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
         audioRecorder.record()
     }
     @IBAction func btnActionStopRec(sender: AnyObject) {
-        updateUI("Recording Done", btnRecordStatus: true, btnStopRecStatus: false)
+        updateUIisRecording(false)
         audioRecorder.stop()
         let audioSession = AVAudioSession.sharedInstance()
         try! audioSession.setActive(false)
@@ -54,6 +53,8 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
         performSegueWithIdentifier("stopRecording", sender: audioRecorder.url)
         } else {
             print("Saving of recording failed")
+            updateUIisRecording(false)
+            //PlaySoundsViewController.showAlert("")
         }
     }
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -63,10 +64,17 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
             playSoundsVC.recordedAudioURL=recorderAudioURL
         }
     }
-    func updateUI (lblStatustext: String, btnRecordStatus: Bool, btnStopRecStatus: Bool  ) -> Void {
-        lblOutletStatus.text=lblStatustext
-        btnOutletRec.enabled=btnRecordStatus
-        btnOutletStopRec.enabled=btnStopRecStatus
+
+    func updateUIisRecording(isRecording: Bool) {
+        if (isRecording) {
+           lblOutletStatus.text = "Recording in progress"
+            btnOutletRec.enabled = false
+            btnOutletStopRec.enabled = true
+        } else {
+            lblOutletStatus.text = "Recording done"
+            btnOutletRec.enabled = true
+            btnOutletStopRec.enabled = false
+        }
     }
 }
 
